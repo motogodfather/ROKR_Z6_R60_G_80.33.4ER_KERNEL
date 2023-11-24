@@ -1,0 +1,1353 @@
+#
+# Copyright 2006-2007 Motorola, Inc.
+#
+# For a description of the syntax of this configuration file,
+# see Documentation/kbuild/kconfig-language.txt.
+#
+
+#
+# This file contains only features and bug fixes that are generic to
+# Motorola.  If you have a hardware dependent configuration, then it
+# should go in the appropriate hardware Kconfig, not this one.  Every
+# config option in this file should start with MOT_FEAT or MOT_Wxxx.
+#
+
+menu "Motorola Features and Bug Fixes"
+
+config MOT_WFN478
+	bool "mxc_pm_lowpower should save IRQ state"
+	default n
+	help
+	  mxc_pm_lowpower for Zeus, Argon, and SCM-A11 uses local_irq_enable
+	  and local_irq_disable.  It should save and restore the IRQ state
+	  instead of overriding the previous setting.
+
+config MOT_FEAT_BRDREV
+	bool "Board Revision Feature"
+	default n
+	help
+	  Motorola supports a board revision feature that provides
+	  dynamic access to the board revision.  Code can dynamically
+	  be targeted to specific revisions of the board.
+
+config MOT_FEAT_BOOTINFO
+	bool "Boot Information Feature"
+	default n
+	help
+	  This feature provides access to certain boot information
+	  from both kernel context (via function call) and user
+	  context (via /proc/bootinfo).
+
+config MOT_WFN430
+	bool "IPU Internal memory address and size are not defined in mxc91231.h"
+	default n
+	help
+	  With the MVL 5/12 drop, the file include/asm-arm/arch-mxc/mxc91231.h 
+	  is missing the IPU internal memory options, and has extraneous 
+	  options for IPU_MEM_BASE_ADDR and MAX_S0_BASE_ADDR.
+
+config MOT_FEAT_DOWN_TIMEOUT
+	bool "down timeout services"
+	default n
+	help
+	  This enables semaphore down services with timeout parameter.
+
+config MOT_FEAT_POWERUP_LOGO
+	bool "Powerup LOGO Feature"
+	depends on MOT_FEAT_BOOTINFO
+	default n
+	help
+	  This feature enables exposing IPU/GPU related
+          information that MBM provides during boot.  
+
+config MOT_FEAT_POWERUP_REASON_EZX_COMPAT
+	bool "EZX Compatibility Powerup Reason Feature"
+	depends on MOT_FEAT_BOOTINFO
+	default n
+	help
+	  This feature enables EzX compatibility access to the powerup
+	  reason that is provided during boot.  This access occurs
+	  through the /proc/powerup_info interface.  Use of this
+	  feature is deprecated.  Use MOT_FEAT_BOOTINFO instead.
+
+config MOT_FEAT_MTD_FS
+    bool "Motorola specific MTD/file system support "
+    depends on MTD
+    default n
+    help
+        This flag controls for Motorola specific changes made in the MTD driver and
+          file system areas.
+
+config MOT_FEAT_LPNAND_SUPPORT
+	bool "MTD NAND Large Page (2K) Support "
+	depends on MTD_NAND_MXC
+	default n
+	help
+	  This feature is adding the capability to support large page (2K) NAND chip
+	  into the mxc_nd lower level board driver. With this feature turned on both
+	  small page (512B) and large page (2K) are supported by mxc_nd borad driver.
+
+config MOT_WFN439
+    bool "Large Page NAND support on yaffs2" 
+    default n
+    depends on MOT_FEAT_LPNAND_SUPPORT
+    help
+      MontaVista mobilinux doesn't support the Large Page NAND on the
+      yaffs2 filesystem.
+
+config MOT_FEAT_NAND_AUTO_DETECT
+	bool "MTD NAND Chip type Auto-detection support "
+	depends on MTD_NAND_MXC
+	default n
+	help
+	  This feature automatically detects the on-board NAND chip_type, manufacturer_id
+	  chip_id and chip capacity; it automatically sets the appropriate NFC clock rate
+	  based on chip_id and manufacturer_id.
+
+choice
+	prompt "Framebuffer pixel packing format"
+	depends on FB_MXC
+	default MOT_FEAT_FB_MXC_BGR
+
+config MOT_FEAT_FB_MXC_RGB
+	bool "RGB format"
+
+config MOT_FEAT_FB_MXC_BGR
+	bool "BGR format"
+
+endchoice
+
+config MOT_FEAT_IPU_BGRA6666
+	bool "BGR pixel packing"
+	depends on MOT_FEAT_FB_MXC_BGR && FB_MXC_24BPP 
+	default n
+	help
+	  This feature enables the compile-time selection of BGRA6666 
+	  (Blue-Green-Red-Alpha) pixel packing format. The default MontaVista 
+	  kernel comes with BGR24 format by default. But MME applications
+	  require this format which allows the use of local alpha set with each
+	  graphics pixel.
+
+config MOT_FEAT_EMULATED_CLI
+        bool "Secondary CLI display on main LCD"
+	default n
+	help
+	  This feature enables an emulated CLI display, which displays its 
+	  contents on the main display instead of a physical CLI display.
+
+config MOT_FEAT_LCD_ESD_RECOVERY
+	bool "LCD display recovery from ESD"
+	default n
+	help
+	  This feature enables support for recovering from electrostatic 
+	  discharge automatically every 5 seconds on the LCD display.  
+
+config MOT_WFN394
+	bool "Framebuffer allocation based on bytes per pixel"
+	default n
+	help
+	  This is a MontaVista bugfix where the MXCFB driver statically 
+	  allocates 4 bytes per pixel, even when a 24 bit-per-pixel 
+	  (3 bytes per pixel) framebuffer is used.  
+
+config MOT_WFN429
+	bool "IOCTL definition for MXCFB_WAIT_FOR_VSYNC"
+	default n
+	help
+	  This MontaVista bug fix reverts the IOCTL definition of MXCFB_WAIT_FOR_VSYNC
+	  to _IO('M', 2). The definition of this IOCTL was changed under the May 12th 
+	  drop. 
+
+config MOT_FEAT_IPU_PF_PERM666
+	bool "set MXC MPEG4/H.264 Post Filter Driver permission to rw-rw-rw-"
+	depends on MXC_IPU_PF
+	default n
+	help
+	  Driver for MPEG4 dering and deblock and H.264 deblock
+	  using MXC IPU h/w with permision rw-rw-rw-. Default permission to
+	  this driver is rw-r--r--.
+
+config MOT_FEAT_DISABLE_SW_CURSOR
+	bool "Disable software cursor"
+	default n
+	help
+	  This feature is to disable software cursor flashing on
+          the fb console.
+
+config MOT_FEAT_SYSREBOOT
+        bool "Use alternative reboot mechanisms"
+        default n
+        help
+            Use a method other than the watchdog to implement rebooting.
+
+choice
+        prompt "Reboot Mechanism"
+        depends on MOT_FEAT_SYSREBOOT
+        default MOT_FEAT_SYSREBOOT_CRM
+
+config MOT_FEAT_SYSREBOOT_CRM
+        bool "warm reset from clock reset module"
+        help
+            This feature causes a warm reset using the CRM_AP_AMCR register
+            (SW_AP) rather than using the WDOG register
+
+config MOT_FEAT_SYSREBOOT_ATLAS
+        bool "reboot using the Atlas alaram clock"
+        help
+            This implements rebooting by setting an Atlas RTC alarm to
+            wake the phone up two seconds after powering down.
+
+endchoice
+
+config MOT_WFN432
+	bool "Defining EPIT1_AP_BASE_ADDR in mxc.h"
+	default n
+	help
+	    This bug fix defines EPIT1_AP_BASE_ADDR as EPIT1_BASE_ADDR
+	    for machines that do not have it defined.
+
+config MOT_WFN435
+	bool "Defining SIM1_BASE_ADDR in mxc91231.h and mxc91131.h"
+	default n
+	help
+	    This bug fix defines SIM1_BASE_ADDR for MXC91231 based products
+	    in order to remain consistent with MXC91321, which defines both
+	    SIM1_BASE_ADDR and SIM2_BASE_ADDR.
+
+config MOT_FIX_ASCENSION
+	bool "Ascension HW bug"
+	default n
+	help
+	  The Ascension HW has incorrect display interface to the main display.
+	  As compared to the MXC91231 reference hardware, the difference is that
+	  blue and red lines are swapped.
+
+config MOT_FEAT_IPU_MEM_ADDR
+	bool "IPU memory allocation address"
+	default n
+	help
+	  This feature dynamically determines at boot time how much memory is 
+	  allocated to the kernel, and reserves space immediately after the 
+	  kernel for the IPU framebuffer. If an optional ipu_mem=size@addr is 
+	  specified at the boot command line, the kernel will reserve this 
+	  region and let the IPU driver use it. In this case, mem=size@addr
+	  option must include the region specified by ipu_mem option. 
+
+config MOT_FEAT_IPU_IOCTL
+	bool "IPU ioctl definition relocation"
+	default n
+	help
+	  This feature relocates all nonstandard ioctl definitions into 
+	  Motorola and architecture specific header files.
+
+config MOT_FEAT_FB_PANIC_TEXT
+	bool "Draw a panic string on the display"
+	depends on FRAMEBUFFER_CONSOLE
+	default n
+	help
+	  This feature causes a panic string to be drawn to the display 
+	  upon either kernel panic or user ioctl.
+
+config MOT_FEAT_IPU_IOCTL_EZX_COMPAT
+	bool "IPU ioctl compatibility with EzX PXAFB driver"
+	depends on MOT_FEAT_IPU_IOCTL
+	default n
+	help
+	  This feature provides minimal EzX PXAFB ioctl compatibility to
+	  support parts of the PXAFB API.  The use of this feature is deprecated 
+	  and is not fully implemented.  If unsure, say no. 
+
+config MOT_WFN418
+	bool "Ability to configure IPU ADC display 2 clock polarity"
+	default n
+	help
+	  This MontaVista bugfix adds the ability to control the IPU ADC
+	  display 2 serial clock polarity. 
+
+config MOT_FEAT_ACTIVE_AND_LOW_POWER_INTERVAL_TIMERS
+        bool 'EZX RTC Stopwatch support'
+        depends on ARCH_MXC91331 || ARCH_MXC91321 || ARCH_MXC91231  || ARCH_MXC91131
+        default n
+        help
+          This flag controls Motorola changes that allow user space
+          applications to set timers that will expire in active and low
+          power modes, waking the system up if necessary.
+
+config MOT_FEAT_PRINTK_TIMES
+    bool "Motorola specific printk timing information"
+    default n
+    help
+        This flag controls Motorola specific changes made to printk.c and others,
+        needed to output timing information with each printk message.
+
+config MOT_WFN248
+    bool "KGDB module debugging support"
+    depends on ARCH_MXC91231
+    default n
+    help
+    MontaVista mobilinux doesn't support module debugging in kgdb.
+
+config MOT_FEAT_ADVANCED_DEBUG
+        bool "Enable advanced debugging features"
+        default n
+        help
+                This feature adds advanced debugging capabilities
+                such as memory dump and panic on oops
+
+menu "Advanced Debugging Options"
+        depends on MOT_FEAT_ADVANCED_DEBUG
+
+config MOT_FEAT_KPANIC
+	bool "Panic dump to flash support"
+	depends on MOT_FEAT_OTP_EFUSE
+	default n
+	help
+		This flag controls Motorola specific changes that allows the
+		printk buffer to be written out to a dedicated kpanic flash
+		partition, whenever the kernel panics.
+
+config MOT_FEAT_DEBUG_WDOG
+	bool "Enable saving debug information on watchdog timeout"
+	default n
+	help
+		This feature enables saving extra debug information when
+		the system fails to service watchdogs and reset.
+
+config MOT_FEAT_MEMDUMP
+        bool "Enable memory dump to mass storage partition on panic"
+        depends on MOT_FEAT_KPANIC
+        default n
+        help
+                This feature enables dumping the content of main
+                memory to the mass storage partition when kernel
+                panics. It is also recommended to enable DEBUG_ERRORS.
+                In addition to saying y to this option, you need to
+                include "memdump=/dev/mtdblock/dump_partition_name"
+                in the boot command line to make it work.
+                Make sure no user-space program tries to fsck or
+                format the partition on boot.
+
+config MOT_FEAT_TEST_PANIC
+        bool "Enable the test panic capability"
+        default n
+        help
+                If enabled, the kernel can be made to panic by
+                echo 1 > /proc/sys/kernel/cause_panic. This is
+                useful when testing the memory dump feature.
+
+config MOT_FEAT_PANIC_ON_OOPS
+        bool "Panic on oops"
+        default n
+        help
+                If enabled, kernel will panic on oops
+
+config MOT_FEAT_PANIC_ON_SCHED_ATOMIC
+        bool "Panic on scheduling while atomic"
+        default n
+        help
+                If enabled, kernel will panic on the
+                scheduling while atomic conditions
+endmenu
+
+config MOT_FEAT_MODEM_RELAY
+	bool "Modem Relay Line Discipline"
+	default n
+	help
+		By setting this flag, modem relay line discipline number is added.
+
+config MOT_KEYPAD
+	bool "Motorola Internal Keypad Driver"
+	depends on (ARCH_MXC91331 || ARCH_MXC91321 || ARCH_MXC91231 || ARCH_MXC91131) && VT
+	help
+          This is the Keypad driver for Motorola phones
+
+config MOT_FEAT_FLIP
+	bool "Motorola Keypad Driver supports FLIP"
+	depends on MOT_KEYPAD
+	default n
+	help
+          This is on if the phone has a flip.
+
+config MOT_FEAT_SLIDER
+	bool "Motorola Keypad Driver supports SLIDER"
+	depends on MOT_KEYPAD
+	default n
+	help
+          This is on if the phone is a slider.
+
+config MOT_FEAT_CANDYBAR
+	bool "Motorola MPM Driver supports CANDYBAR"
+	default n
+	help
+          This is on if the phone is a candybar.
+
+config MOT_FEAT_PPP_EZX_COMPAT
+	bool "EzX Compatibility for PPP"
+	default n
+	help
+	  Motorola supports the following changes to how PPP is supported:
+	  PPPIOCGIDLE is implemented in ppp_async.c
+
+config MOT_FEAT_SLABFREE_PROC
+	bool "Enables /proc/slabfree entry"
+	default n
+	help
+		The EZX support library "libezxappbase-x86-r.so" requires a proc filesystem 
+		entry named "slabfree" that contains an estimate of the amount of freeable 
+		memory held in the slab cache.
+
+config MOT_FEAT_MXC_IPC_SDMA_STATS
+	bool "IPC SDMA RX/TX statistics"
+	depends on MXC_SDMA_API
+	default n
+	help
+		By setting this flag you are able to view send and receive 
+                statistics over IPC SDMA channels, through the /proc interface.
+
+config MOT_WFN244
+	bool "MXC UART Driver Bug"
+	default n
+	help
+		MXC UART driver hangs at open coincident with printks to same port.
+
+config MOT_FEAT_APP_DUMP
+	bool "AP Application Core Dump"
+	depends on MOT_FEAT_OTP_EFUSE
+	default n
+	help
+		By enabling this feature, the customized AP application core dump can be
+		captured, for debugging purposes.
+
+config MOT_FEAT_PM
+        bool "Motorola Power Management changes"
+        depends on PM
+        default n
+        help
+                This flag controls Motorola specific Power Management changes.
+
+config MOT_FEAT_PM_DESENSE
+        bool "Motorola Power Management Desense changes"
+        depends on MOT_FEAT_PM
+        default n
+        help
+                This flag controls Motorola specific Power Management Desense changes.
+
+config MOT_FEAT_PM_BUTE
+        bool "Porting PMDaemon for Bute"
+        depends on ARCH_MXC91321 && PM
+        default n
+        help
+                This feature implements a temporary fix that is intended to be
+                removed in the future.  It provides capabilities that Freescale
+                has not implemented yet.  When they do, then we will accept the
+                FSL changes and remove this feature.
+
+config MOT_FEAT_PM_STATS
+        bool "Motorola Power Management statistics collection"
+        depends on MOT_FEAT_PM
+        default n
+        help
+                This flag controls Motorola specific changes for statistics
+                collection for Power Management.
+
+config MOT_FEAT_PM_DEVICE_SUSPEND_DEBUG
+        bool "Motorola Power Management device suspend debugging"
+        depends on MOT_FEAT_PM
+        default n
+        help
+                This flag controls Motorola specific changes for debugging
+                of the device suspend sequence for Power Management.
+
+config PROFILER
+        bool "Profiler support"
+
+config MOT_FEAT_SET_MAC
+	bool "Workaround for the factory not setting the Ethernet MAC address."
+	default n
+	help
+		The factory does not programm the EEPROM on wingboards to set the
+		Ethernet MAC address. This feature writes a MAC address based upon
+		the processor unique ID to EEPROM, thus enabling the use of the 
+		Ethernet interface on the board.
+
+config MOT_FEAT_NAND_RDDIST
+	bool "MTD NAND read disturb detection and recovery feature."
+	depends on MTD_NAND_BBM
+	default n
+	help
+		This feature is for the MTD NAND driver working with NAND watchdog daemon
+		to detect and fix any potential read disturb blocks.
+
+config MOT_FEAT_NAND_BLKCNT_TEST
+	bool "MTD NAND block iaccess count test feature."
+	depends on MOT_FEAT_NAND_RDDIST
+	default n
+	help
+		This feature privides the capabilities for the user to get the NAND flash block
+		access matrix (block read|write|erase count for every block on the flash chip)
+		through the extra ioctl APIs provided by this feature. 
+
+config MOT_FEAT_NANDECC_TEST
+	bool "MTD NAND ECC test"
+	default n
+	help
+		This NAND ECC test feature privides the capability and the tool for user to 
+		inject 1 bit or 2 bit ECC error on slected MTD NAND partition and block number
+		through the ioctl - MEMSETOOBSEL.
+
+config MOT_WFN349
+	bool "MU driver bug fixes for locking and suspend_flag"
+	default n
+	help
+		There are a few potential problems in the MU driver that are
+		fixed under this config. The suspend_flag in the resume
+		function is cleared after the MU has been restored instead of
+		before. Also AS_MUMCR was not protected by locks in all cases.
+
+config MOT_FEAT_SO_BINDTODEVICE_EZX_COMPAT
+	bool "Bring the sock_setsockopt SO_BINDTODEVICE option up to EZX compatibility"
+	default n
+	help
+		In EZX, unprivledged users can bind sockets to a particular device.
+		We have replicated this functionality in our code.
+
+config MOT_FEAT_MU_TEST
+	bool "MXC MU driver code for testing purposes only"
+	default n
+	help
+		In order to test the MU driver, an IOCtl was added to allow
+		the simulation of a BP. The code should not be included
+		under any circumstances other than testing so this feature
+		was defined.
+
+config MOT_WFN374
+	bool "MXC MU driver poll implementation"
+	default n
+	help
+		The MU poll functionality was previously inadequate. This
+		change implements poll and allows the users to check
+		for read and write capabilities.
+
+config MOT_WFN381
+	bool "MXC nand driver read status implementation"
+	default n
+	help
+		The NAND MXC/MTD drivers issue a read status command at the end of read access.
+		The read status command is only needed after erase and write operations.
+		This redundant read status operation could cause the performance impact.
+config MOT_FEAT_SECURE_CLOCK
+        bool "Enable capability to set the secure real-time clock"
+        depends on MOT_FEAT_LSM
+        default n
+        help
+                Enabling this feature will allow certain processes to be able
+		to set the secure real-time clock.
+
+config MOT_WFN377
+	bool "MU driver implementation of byte swapping ioctl()'s"
+	default n
+	help
+		The mxc_mu.c driver previously performed byteswapping 
+		unconditionally on channel 2. Byte swapping now has
+		ioctl()'s to dynamically enable byte swapping on any channel.
+
+config MOT_FEAT_OTP_EFUSE
+        bool "Sets the type of OTP storage used to E-Fuses."
+        default n
+        help
+                The type of OTP storage for a given phone is currently limited
+                to EFUSE or FLASH.  Freescale processors rely on e-fuses while
+                INTEL uses special OTP registers in flash.
+
+config MOT_FEAT_ATLAS_TIMING_ISSUES
+        bool "Fixes Atlas SPI port timing issues"
+        depends on MXC_SPI
+        default n
+        help
+                Enabling this feature fixes issues with Atlas reads and writes
+                when the SPI clock is set to 66.6Mhz/4. The SPI clock is
+                changed to 66.6Mhz/8 which slows operations down to a point
+                where reads and writes to Atlas are reliable again.
+
+config MOT_WFN396
+        bool "SPBA bug causes lock of IOMUX when SIM is started for ArgonLV"
+        default n
+        help
+                The SPBA device assignments for ArgonLV in spba.h are incorrect. When
+                the SIM is started on ArgonLV, IOMUX locks and crashes the BP.
+
+config MOT_WFN428
+	bool "SIM2_BASE_ADDR incorrectly defined in mxc91321.h"
+	default n
+	help
+		Freescale has incorrectly defined the base address for SIM2 support on 
+		ArgonLV as 0x50000000.  This WSAN correctly defines the base address
+		as 0x50030000, according to the ArgonLV DTS.
+
+config MOT_WFN470
+	bool "CTS asserted before baudrate set"
+	default n
+	help
+		In the mxc_uart driver function mxcuart_set_termios. It is possible
+                to assert the CTS pin before the baud rate has been set.
+
+config MOT_FEAT_CONSOLE_DISABLED
+	bool "The framebuffer is not used as a console by default"
+	default n
+	help
+		To prevent any console output from being routed to
+		the LCD, the frame buffer device will be placed into a suspended 
+		state by default.
+
+config MOT_FEAT_CHKSUM
+	bool "Enable consistent checksum of kernel across builds"
+	default n
+	help
+		Enables consistent generation of binary output across builds.
+		A build with a particular config spec and build commands should
+		create a vmlinux and zImage that is bit-for-bit identical,
+		independent of view name, date, and hostname.
+
+config MOT_WFN379
+	bool "Manages MU control register more carefully"
+        depends on MXC_IPC
+	default n
+	help
+		MontaVista (or Freescale) made too many assumptions about
+		the ability to blindly set the value of the MU control
+		register.  This change takes more care about making such
+		settings.
+
+config MOT_WFN406
+	bool "Manages Super Block traverse more carefully during DSM operations"
+	default n
+	help
+		MontaVista (or Freescale) does not prevent a race condition 
+                during a umount of a file system during deep sleep mode
+                operations.  This change checks for corruption and rescans the
+		super block list.
+
+config MOT_FEAT_BT_MAXUARTBAUDRATE
+        bool "Allow additional data rates for Bluetooth"
+        default n
+        help
+                This feature provides support for the new Bluetooth data rates.
+
+config MOT_WFN408
+	bool "Conditionally compile module_nb_t index type"
+	default n
+	help
+		This will conditionally compile the module_nb_t index type, 
+		based on CONFIG_SPI_NB_MAX, which defines the length of the
+		arrays its used to index.  This corrects a number of Klocwork
+		errors.
+
+config MOT_WFN404
+        bool "Forces all the data written to an MU channel to be sent on close"
+        default n
+        help
+            Applications writting to an MU device have no way of verifying the
+            data they wrote has actually been sent. To correct this problem,
+            when the application calls close, that close will block until the
+            data has been delivered.
+
+config MOT_WFN403
+    bool "Fix MU driver so userspace writes of only valid size are accepted"
+    default n
+    help
+        A write to the MU can only succeed if it is a multiple of the MU
+        channel size. However, the MU would return a non-multiple number
+        of bytes written if the write buffer was near full capacity. This
+        change corrects the problem so only a valid sized write will
+        be performed.
+
+config MOT_WFN409
+	bool "Enable the ability to stop a SDMA transfer"
+	default n
+	help
+		MontaVista (or Freescale) should either adopt our version
+		of mxc_dma_reset() function or provide their own, in order
+		to support the feature of stopping SDMA transfers.
+config MOT_WFN407
+	bool "fix bug on NAND Device IDs lookup table"
+	default n
+	help
+		Rmoving the duplicated entries in NAND Device IDs lookup table,
+		which causes the NAND driver pickup a wrong device id during 
+		initialization.
+
+config MOT_FEAT_FX2LP_I2C
+	bool "FX2LP firmware download support over I2C"
+        depends on (ARCH_MXC91321 || ARCH_MXC91231) && MOT_FEAT_BOOTINFO
+	default n
+	help
+		This turns on support for downloading firmware to the FX2LP
+		USB High Speed chip at kernel init. The firmware transfer is
+		done using the I2C protocol with the MXC I2C bus acting as
+		the slave.
+
+
+config MOT_WFN423
+	bool "ArgonLV 1.2 Support"
+	default n
+	help
+		This adds support for ArgonLV version 1.2 to the Bute
+		platform.
+
+config MOT_FEAT_SECURE_USERMEM
+    bool "Remove userspace access to raw memory (/dev/mem, /dev/kmem, /proc entries)"
+    default n
+    help
+        Enabling this feature will remove the /dev/mem and 
+        /dev/kmem device functionality as well as /proc entries
+        for direct memory access in userspace.
+
+config MOT_FEAT_NO_PTRACE
+        bool "Disables ptrace functionality"
+        default n
+        help
+                Enabling this feature will remove ptrace functionality  
+                from the kernel.
+
+config MOT_FEAT_LSM
+    bool "Motorola Security Module"
+    depends on SECURITY
+    default n
+    help
+        If enabled the Motorola Security Module LSM will be compiled       
+
+config MOT_FEAT_SECURE_MOUNT
+    bool "Enable filesystem mount protection"
+    depends on MOT_FEAT_LSM
+    default n
+    help
+        If enabled mounts will be secured using the Motorola LSM
+
+config MOT_FEAT_SECURE_MOUNT_SYSFS
+    tristate "Enable filesystem mount protection sysfs interface"
+    depends on MOT_FEAT_SECURE_MOUNT
+    default n
+    help
+        If enabled a sysfs interface will be created to supply trusted
+        mounts to the filesystem mount protection 
+
+config MOT_FEAT_PANIC_DECISION
+	bool "Enable proper decision making during kernel panic"
+	default n
+	help
+		If this feature is enabled, during kernel panics proper
+		set of actions will be taken (depending upon whether the
+		phone is in production or engineering mode).
+
+config MOT_FEAT_SECURE_DRM
+	bool "Enable additional security for Janus DRM "
+    depends on MOT_FEAT_LSM
+	default n
+	help
+		Feature 11396 requires additional mandatory-access control
+		security to protect the DRM key files. Setting this config
+		option to 'y' enables that additional security.
+
+config MOT_FEAT_DRM_COREDUMP
+	bool "Enable full coredump for non-security related application."
+	depends on MOT_FEAT_APP_DUMP && MOT_FEAT_SECURE_DRM
+	default n
+	help
+		This feature enables full coredump for non-security related
+		application.
+
+config MOT_FEAT_SECURE_MODULE
+	bool "Allow only trusted kernel modules to be loaded"
+	depends on CRYPTO && CRYPTO_SHA1
+	default n
+	help
+        By enabling this feature only modules that have a trusted
+        SHA1 digest in /etc/modules.hash will be able to be
+        inserted into the kernel.
+
+config MOT_FEAT_DISABLE_UART3_DMA
+        bool "Disable DMA on MXC internal UART 3"
+        default n
+        help
+                Disabling DMA on MXC internal UART 3 allows the use
+                of that port as a serial console.
+
+config MOT_FEAT_GPIO_API
+        bool "Enable Motorola-hardware-specific GPIO API"
+        default n
+        help
+                Kernel-space API to control GPIO signals.
+
+menu "GPIO API Options"
+        depends on MOT_FEAT_GPIO_API
+
+
+config MOT_FEAT_ANTIVIRUS_HOOKS
+    bool "Enable file system hooks to support anti-virus"
+    default n
+    help
+        This feature places system hooks in open(), close(), and
+        execve() to support anti-virus.
+config MOT_FEAT_GPIO_TRACE
+        bool "Enable trace messages during GPIO initialization"
+        depends on MOT_FEAT_GPIO_API
+        default n
+        help
+                This feature enables extended trace messages during GPIO
+                initialization.
+
+config MOT_FEAT_GPIO_API_EDIO
+        bool "Allow device drivers to read and set the status of EDIO signals."
+        depends on MOT_FEAT_GPIO_API
+        default n
+        help
+                Enable the deprecated edio_set_data and edio_get_data functions
+                which were removed in the MontaVista 05/12 drop.
+
+config MOT_FEAT_GPIO_API_MC13783
+        bool "Allow control over GPIO signals connected to the Atlas."
+        depends on MOT_FEAT_GPIO_API
+        default n
+        help
+                This allows control over GPIO signals between the Atlas
+                and the SCM-A11.
+
+config MOT_FEAT_GPIO_API_BTPOWER
+        bool "Allow control over bluetooth power GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control the power of the bluetooth module.
+
+config MOT_FEAT_GPIO_API_CSI    
+        bool "Allow control over camera sensor interface GPIO signals"
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables control over camera power down and reset signals.
+
+config MOT_FEAT_GPIO_API_DAI
+        bool "Allow control over digital audio IOMUX settings."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control IOMUX state of DAI pins.
+
+config MOT_FEAT_GPIO_API_ETHERNET
+        bool "Control Ethernet related GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API for receiving Ethernet interrupts.
+
+config MOT_FEAT_GPIO_API_ETM
+        bool "Allow ETM signals to be IOMUXed to alternative pins"
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                On SCM-A11 and Argon, the ETM signals can be IOMUXed onto
+                IPU and CSI/KPP pins.
+
+config MOT_FEAT_GPIO_API_LCD
+        bool "Control IPU/LCD related GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API for controlling IPU and LCD GPIO signals.
+
+config MOT_FEAT_GPIO_API_LIGHTING
+        bool "Allow control over display, keypad, and camera light GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Control lighting related GPIO signals.
+
+menu "GPIO Lighting API Options"
+        depends on MOT_FEAT_GPIO_API_LIGHTING
+
+config MOT_FEAT_GPIO_API_LIGHTING_LCD
+        bool "Control the LCD backlight via GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API_LIGHTING
+        help
+                On some boards, like the SCM-A11 and ArgonLV reference designs,
+                the LCD backlight can be enabled and disabled via GPIO settings.
+
+config MOT_FEAT_GPIO_API_LIGHTING_CAM_TORCH
+        bool "Control the camera torch GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API_LIGHTING
+        help
+                On some phones, like Ascension, the camera torch can be
+                enabled and disabled via GPIO settings.
+
+config MOT_FEAT_GPIO_API_LIGHTING_CAM_FLASH
+        bool "Control the camera flash GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API_LIGHTING
+        help
+                On some phones; like Ascension, Lido, and Saipan, the camera
+                flash can be enabled and disabled via GPIO settings.
+
+config MOT_FEAT_GPIO_API_LIGHTING_EL
+        bool "Control the electroluminescent keypad backlight via GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API_LIGHTING
+        help
+                On some phones the keypad electroluminescent backlight can be
+                enabled and disabled via GPIO settings.
+
+comment 'End of Motorola GPIO Lighting API'
+
+endmenu
+
+config MOT_FEAT_GPIO_API_MMCSD
+        bool "Control GPIO signals related to MMC/SD controller."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control signals related to MMC/SD.
+
+config MOT_FEAT_GPIO_API_SDHC
+        bool "Control Secure Digital Host Controller GPIO signals."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control signals related to SDHC.
+
+config MOT_FEAT_GPIO_API_SERIALIZER
+        bool "Control display serializer GPIO signals."
+        depends on MOT_FEAT_GPIO_API
+        default n
+        help
+                Enables API to control display serializers signals
+                independently of LCD power control signals.
+
+config MOT_FEAT_GPIO_API_USBHS
+        bool "Control GPIO signals related to high-speed USB controller."
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control signals related to the high-speed
+                USB controller.
+
+config MOT_FEAT_GPIO_API_WLAN
+        bool "Allow control over WLAN GPIO signals"
+        default n
+        depends on MOT_FEAT_GPIO_API
+        help
+                Enables API to control WLAN reset, client wake,
+                and power down signals.
+
+comment 'End of Motorola-hardware-specific GPIO API'
+
+endmenu
+
+config MOT_WFN414
+        bool "Add __KERNEL__ ifdefs in mxc_mu.h"
+        depends on MXC_MU
+        default n
+        help
+                Montavista (or Freescale) did not enclose definitions that 
+                should only be used in kernel space within ifdef __KERNEL__ 
+                blocks.
+
+config MOT_WFN431
+        bool "Work around SPI read/write problems"
+        default n
+        depends on MXC_SPI
+        help
+                Works around SPI read/write problems.
+config MOT_WFN424
+	bool "Enable bounds checking on minor numbers for drivers/block/rd.c"
+	default n
+	help
+		Minor numbers are not checked in rd.c when a file operation
+		is performed. This enable bounds checking on an open().
+
+
+config MOT_WFN420
+	bool "Fix PLL calculation overflow"
+	default n
+	help
+	  The calculation used for the PLL rate calculation will overflow
+	  for large integer values used in the numerator calculation.
+          Setting this configuration prevents the overflow.
+
+config MOT_WFN419
+	bool "Enable setting of RTC alarms for more than a day in the future"
+	depends on MXC_RTC
+	default n
+	help
+		Montavista (or Freescale) should update the MXC RTC driver
+		to allow setting of alarms for more than a day in the future.
+
+
+config MOT_WFN452
+	bool "Use the alternate PLL when changing the PLL0 frequency"
+	default n
+	help
+	  This allows for temporarily switching to PLL2 when changes are 
+          made on PLL0 so that the delay waiting for PLL lock is
+          eliminated.
+
+config MOT_FEAT_YAFFS_PARSE_MOUNT_OPTIONS
+	bool "Enable parsing of yaffs specific mount options" 
+	default n
+	help
+		If this feature is enabled the mount command will parse and validate
+                any YAFFS specific options passed.  (ie -o shred)
+
+config MOT_FEAT_YAFFS_SHREDDER
+	bool "Enable yaffs shredding" 
+	default n
+	depends on MOT_FEAT_YAFFS_PARSE_MOUNT_OPTIONS
+	help
+		If this feature is enabled the mount command will verfiy if the 
+                shredding option has been passed.  Then all subsequent dirty blocks
+                will be overwritten with Zeros.
+config MOT_WFN440
+	bool "Fix type casting bug in ipt_get_target() function, inside ip_tables.h"
+	default n
+	help
+		MontaVista (or Freescale) should fix the type casting being used for
+		the return value of ipt_get_target() function, for both user and
+		kernel space versions of ip_tables.h.
+
+config MOT_WFN436
+        bool "Hold off MU write callback until data is read"
+        default n
+        help
+          Freescale should update the mxc_ipc.c (Unified API) driver to
+          delay calling the MU write callback until after the recipient has
+          read the data.
+
+config MOT_WFN446
+	bool "Fix klocwork errors in the spi driver"
+	default n
+	help
+		The spi driver has some issues with potential buffer overruns
+		in the code.
+
+config MOT_WFN453
+        bool "Fix mxc_irq_init"
+        default n
+        help
+                A logic error in mxc_irq_init causes IRQ 63 to remain
+                uninitialized on Zeus, Argon, and SCM-A11.
+
+config MOT_WFN441
+	bool "Fix mxc_get_clocks function"
+	default n
+	help
+	  The calculation used for the some of the clock rate calculation are incorrect.
+	  Other calculations are missing.
+          Setting this configuration fixes the problem for the SIM clock.
+
+config MOT_WFN443
+	bool "Enable fix for array overflow error in mtdcore.c"
+	default n
+	help
+        Montavista needs to address an off-by-one error that could 
+        cause a buffer overflow in mtdcore.c. 
+
+config MOT_FEAT_YAFFS_SYNC
+	bool "Enable yaffs auto syncing"
+	default n
+	help
+		If this feature is enabled the yaffs will sync the
+		contents to disk on a sync call
+
+config MOT_FEAT_FAT_SYNC
+	bool "Enable fat auto syncing"
+	default n
+	help
+		If this feature is enabled the fat will sync the
+		contents to disk on a sync call
+
+config MOT_FEAT_2MP_CAMERA_WRKARND
+	bool "Enable bandwidth-improvement workarounds for 2MP image capture"
+	default n
+	help
+	  Enabling this option turns on the GEM and RTIC modules, as well
+          as disables MAX slave 0, during still-image capture.  These three
+          workarounds increase the memory bandwidth available to the IPU
+          CSI (Camera Sensor Interface) to transfer image data from
+          sensor to memory.
+
+config MOT_WFN444
+	bool "IPC/SDMA fixes to allow correct BP datalogging"
+	default n
+	help
+		This addresses several IPC/SDMA issues that prevented
+                BP datalogging from functioning correctly. Fixes for high
+                speed USB and Linkdriver PM are also included.
+
+config MOT_WFN389
+	bool "SDMA should not go through ARM to reach external ROM"
+	default n
+	help
+		The HW path used by SDMA to access SDRAM is changed to not
+                go through ARM. This prevents the SDMA from racing for the
+                ARM to wake up after sleep.
+
+config MOT_FEAT_STM90NM
+	bool "support for Saipan P1 with slower STM 90nm NAND chip"
+	depends on MOT_FEAT_BRDREV
+	default n
+	help
+		This is for supporting Saipan P1 with slower STM 90nm NAND chip.
+
+config MOT_WFN421
+	bool "Decrease the AP_DELAY for switching from lower to higher frequency"
+	default n
+	help
+	  This setting configures a timer logic in the DFS block to a number
+	  of CKIL (~32.786KHz) cycles that the AP should wait before switching 
+	  from lower to higher frequency. 
+
+config MOT_WFN454
+	bool "Return the ENOSPC value on a yaffs filesystem when the end space is reached"
+	default n
+	help
+	  This setting configures applies the yaffs patch to return the end of
+	  space value if a yaffs write runs out of space on the device, 
+	  otherwise -1 is returned. 
+
+config MOT_WFN455
+	bool "HW bug on Toshiba Large Page NAND chip - block erase failed under stress test"
+	default n
+	help
+	  With this bugfix, the software will retry the block erase command (up to 10 times)
+	  after the HW did incorrectly in first try.
+
+
+config MOT_WFN457
+	bool "nand_prepare_oobbuf bug - oob data missplaced in this->oobbuf"
+	default n
+	help
+	  With this bugfix, oob data placed in internal nand this->oobbuf does not meet
+	  the request for nand_write_ecc or nand_write_page on oob data structure.
+
+config MOT_FEAT_INTERN_SD
+	bool "Create internal sd block device for mmc/sd driver"
+	default n
+	help
+	  Create internal sd block device automaticly on mmc/sd driver 
+          initial time.
+
+config MOT_FEAT_EXTERN_SD
+	bool "Create external sd block device for mmc/sd driver"
+	default n
+	help
+	  Create external sd block device automaticly on mmc/sd driver 
+          initial time.
+
+config MOT_FEAT_MEGASIM
+	bool "Create MegaSIM block device for mmc/sd driver"
+	default n
+	help
+	  Create MegaSIM block device automaticly on mmc/sd driver 
+          initial time.
+
+config MOT_WFN445
+	bool "Off by 1 error in SDMA driver"
+	default n
+	help
+		The mxc_request_dma function has a for loop that incorrectly
+                runs through a channel index that doesn't exist.
+
+config MOT_FEAT_MMCSD_DEV_HOST_BIND
+        bool "Bind mmc/sd driver device number to sdhc host id"
+        default n
+        help
+          Fix the mmc/sd device number to sdhc host id.
+          eg. /dev/mmc/blk0 --> sdhc host 1
+              /dev/mmc/blk1 --> sdhc host 2
+
+config MOT_FEAT_MMC_SDHC1
+        bool "Enable MMC driver on MXC SDHC1"
+        depends on MMC
+        default n
+        help
+                Enable probing for MMC devices on SDHC1.
+
+config MOT_FEAT_MMC_SDHC2
+        bool "Enable MMC driver of MXC SDHC2"
+        depends on MMC
+        default n
+        help
+                Enable probing for MMC devices on SDHC2.
+
+
+config MOT_WFN458
+        bool "Fix the IPC & IAPI driver to have less Incorrect logger blocks"
+        default n
+        help
+          This bugfix corrects race conditions present in mxc_ipc.c and the iapi driver
+          which were causing corrupted logger data blocks.
+
+config MOT_WFN456
+       bool "Setup process for VFP RunFast mode to avoid ARM VFP errata"
+       default n
+       help
+	  Sets up processes for VFP RunFast mode to avoid an ARM errata
+	  with VFP exceptions.  (ARM errata 395242)
+
+config MOT_WFN461
+	bool "Stop doesn't appear on i2c bus due to chip going to sleep before stop can be transmitted"
+	default n
+	help
+	  With this bugfix, a delay is added at the end of the stop function to allow time for the
+	  stop to actually appear on the bus. Once this function exits, the clocks can be turned off
+	  and the stop will not appear on the bus.
+
+config MOT_WFN462
+	bool "ARM errata 380532: Load Multiple to the PC can be corrupted or result in deadlock"
+	default n
+	help
+                ARM errata 380532 can cause a load multiple request to the PC to be corrupted or deadlock.
+                Load multiple is used extensively in function call returns and also context switching.
+                There is a known workaround for this problem in Rev0, however, we are using
+                Rev1. This option expands the workaround to cover Rev1 chips as well.
+	
+config MOT_WFN465
+	bool "Reads from i2c bus do not check for ACK during slave addressing phase of transfer"
+	default n
+	help
+	  With this bugfix, a non-acked read will return an error instead of a garbage value.
+	
+config MOT_FEAT_VFP_RUNFAST_PANIC
+       bool "Enable kernel panics if an application leaves VFP RunFast mode"
+       depends on MOT_WFN456
+       default n
+       help
+          Causes a kernel panic if an application leaves VFP RunFast mode. This
+          is used to determine is user space is erroneously disabling VFP RunFast
+          mode.
+
+config MOT_FEAT_NO_PAGE_SHARED
+        bool "Do not hardcode pgprot to PAGE_SHARED in device drivers"
+        default n
+        help
+          MMU TLB entries created with PAGE_SHARED do not have L_PTE_ASID bit set, could
+          cause context switch problem.
+
+config MOT_FEAT_CACHE_OPTIMIZATION
+	bool "Improve cache performance"
+	depends on MOT_FEAT_PM
+	default n
+	help
+	   Configure the cache in a write-back policy and decrease the wait cycles between
+	   cache accesses.
+
+config MOT_FEAT_SYNC_INODE
+        bool "Enable inode sync during wb_kupdate function"
+        default n
+        help
+         Syncs the inodes for yaffs and vfat files during the wbkupdate function call (~ 5secs)
+
+config MOT_WFN472
+        bool "NAND driver issues an extra read status"
+        default n
+        help
+          With this bugfix, the redundant request for read status will be 
+          removed from the NAND driver.
+
+config MOT_WFN473
+        bool "mtdblockd priority is set incorrectly"
+        default n
+        help
+          With this bugfix, the mtdblockd priority will be changed to -20.
+
+config MOT_WFN475
+	bool "mu_[read/write]_tasklet_kernel doesn't check return values on MU reads/writes"
+	depends on MXC_IPC
+	default n
+	help
+		The mu_[read/write]_tasklet_kernel bottom halves don't check
+                return values when reading and writing MU data. This can result
+		in bogus data being returned to the client of the channel.
+		Enabing this option solves this problem.
+
+config MOT_WFN476
+        bool "Non-initialized values loaded into the SDMA registers"
+        default n
+        help
+           This bugfix prevents loading non-initialized values into the SDMA 
+           registers.
+
+config MOT_WFN479
+	bool "Initialize jiffies to zero"
+	default n
+	help
+		This bugfix initializes the jiffie counter to zero to avoid a problem
+		that occurs with the times() system call when the counter rolls over 
+config MOT_FEAT_HOTPLUG_FILTER
+	bool "Enables hotplug event filtering"
+	depends on HOTPLUG
+	default n
+	help
+	   This adds in hotplug event filtering. A sysfs entry will
+	   be created which takes a list of events allowed.
+
+config MOT_FEAT_NO_READ_AHEAD
+	bool "Initializes block device read ahead kb to zero"
+	default n
+	help
+	    Set the read ahead default to zero for all block devices
+
+config MOT_WFN477
+	bool "Fix ARMV6 processor bug that could result in instruction cache flush failing"
+	default n
+	help
+	  This bugfix modifies all locations where the instruction cache is flushed to fix the
+	  processor bug.
+
+config MOT_FEAT_PRINT_PC_ON_PANIC
+	bool "When a kernel panic occurs, print out the PC from where panic was called"
+	default n
+	help
+	  This feature helps identify where a panic originated.
+
+config MOT_FEAT_PANIC_ON_OOM
+	bool "Panic the phone in an out of memory situation"
+	depends on !PRIORITIZED_OOM_KILL 
+	default n
+	help
+	   Instead of selecting a process and killing it in hopes that it'll free up
+	   memory, just panic the phone.
+
+config MOT_WFN482
+	bool "Fix high resolution timer bug"
+	default n
+	help
+	   This will fix a bug that causes high resolution timers to spin until the
+	   timer expires instead of setting up the timer in hardware and continuing 
+	   until the interrupt.
+
+config MOT_WFN484
+	bool "Memory mapped files not updating timestamps"
+	default n
+	help
+       With this bugfix, add support to detect when the modification time needs
+       to be updated by placing a hook in set_pages_dirty_buffers andset_pages_dirty_nobuffers.
+
+config MOT_FEAT_SDMA_DEBUG
+	bool "enable ioctl debuggins of sdma controller"
+	default n
+	help
+	   This will help debug an issue with the SDMA controller locking up after a
+	   very long time. It creates an ioctl to retrieve sdma registers and channel
+	   debugging information.
+
+config MOT_TURBO_INDICATOR
+	bool "Use BT LED as an AP turbo mode"
+	default n
+	help
+	   This is a debug option to use the BT LED as turbo mode indicator showing
+	   when the AP runs in turbo mode.
+
+comment 'End of Motorola Features and Bug Fixes'
+
+endmenu

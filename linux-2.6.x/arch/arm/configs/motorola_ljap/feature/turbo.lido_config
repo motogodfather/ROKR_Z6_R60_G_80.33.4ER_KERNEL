@@ -1,0 +1,7 @@
+#
+# arch/arm/configs/motorola_ljap/feature/turbo.lido_config
+#
+# Debug to turn BT LED on if AP runs in turbo mode.
+#
+
+CONFIG_MOT_TURBO_INDICATOR=y

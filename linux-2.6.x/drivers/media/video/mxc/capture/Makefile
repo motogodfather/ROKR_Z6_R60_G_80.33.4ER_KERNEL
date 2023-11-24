@@ -1,0 +1,10 @@
+# obj-$(CONFIG_MXC_IPU) += mxc_v4l2_capture.o
+obj-$(CONFIG_MXC_IPU_PRP_VF_ADC) += ipu_prp_vf_adc.o
+obj-$(CONFIG_MXC_IPU_PRP_VF_SDC) += ipu_prp_vf_sdc.o ipu_prp_vf_sdc_bg.o
+obj-$(CONFIG_MXC_IPU_PRP_ENC) += ipu_prp_enc.o ipu_still.o
+obj-$(CONFIG_MXC_CAMERA_MICRON111) += mt9v111.o sensor_clock.o
+obj-$(CONFIG_MXC_CAMERA_HV7161) += hv7161.o sensor_clock.o
+obj-$(CONFIG_MXC_CAMERA_S5K3AAEX) += s5k3aaex.o sensor_clock.o
+obj-$(CONFIG_MXC_IPU_CAMERA_SENSOR2M) += sensor2m.o sensor2m_hw.o sensor_clock.o
+obj-$(CONFIG_MXC_IPU_CAMERA_I2C_INTERFACE) += cam_i2c_if.o
+obj-$(CONFIG_MOT_FEAT_2MP_CAMERA_WRKARND) += capture_2mp_wrkarnd.o
